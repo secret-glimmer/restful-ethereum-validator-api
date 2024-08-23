@@ -47,19 +47,21 @@ Develop a small RESTful API application using Go. This application will interact
 - Examples of how to call the API endpoints using curl or any other HTTP client.
 
 ## Run Application on Local:
-- Copy `.env.example` and rename it to `.env`.
+- **Copy `.env.example` and rename it to `.env`.**
 
-- Install packages.
+- **Install packages.**
     ``` bash
     go mod download
     ```
 
-- Create swagger documentation.
+- **Create swagger documentation.**
     ``` bash
     swag init -g cmd/main.go
     ```
-- Run application
+- **Run application.**
     ``` bash
     go run ./cmd
     ```
-- You can see swagger documentation in <http://localhost:8080/docs/index.html>.
+- **You can see swagger documentation at this url.**
+    
+    <http://localhost:8080/docs/index.html>.
