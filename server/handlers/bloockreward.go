@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"strconv"
+	"validator-api/pkgs/consts"
 	fn "validator-api/pkgs/functions"
 	"validator-api/responses"
 	s "validator-api/server"
@@ -38,7 +39,7 @@ func (h *HandlerBlockReward) GetBlockReward(ctx *fiber.Ctx) error {
 	if fn.IsSlotInFuture(slot) {
 		return responses.ErrorResponse(ctx,
 			fiber.StatusBadRequest,
-			"Requested slot is in the future.",
+			consts.SlotInFuture,
 		)
 	}
 
@@ -48,7 +49,7 @@ func (h *HandlerBlockReward) GetBlockReward(ctx *fiber.Ctx) error {
 	if isError {
 		return responses.ErrorResponse(ctx,
 			fiber.StatusInternalServerError,
-			"Internal server error.",
+			consts.InternelServerError,
 		)
 	}
 
@@ -56,7 +57,7 @@ func (h *HandlerBlockReward) GetBlockReward(ctx *fiber.Ctx) error {
 	if isEmpty {
 		return responses.ErrorResponse(ctx,
 			fiber.StatusNotFound,
-			"Slot does not exist or was missed.",
+			consts.NotFound,
 		)
 	}
 
