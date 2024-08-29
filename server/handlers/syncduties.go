@@ -43,23 +43,16 @@ func (h *HandlerSyncDuties) GetSyncDuties(ctx *fiber.Ctx) error {
 		)
 	}
 
-	keys, isEmpty, isError := services.GetSyncDuties(slot, h.Server.Config)
+	keys := []string{}
 
-	// Check internal server error
-	if isError {
+	err := services.SyncCommitteeIndices(slot, h.Server.Config.QuckNode.Http, &keys)
+
+	if err != nil {
 		return responses.ErrorResponse(ctx,
-			fiber.StatusInternalServerError,
-			"Internal server error.",
+			fiber.StatusBadRequest,
+			err.Error(),
 		)
 	}
 
-	// Check if slot does exist
-	if isEmpty {
-		return responses.ErrorResponse(ctx,
-			fiber.StatusNotFound,
-			"Slot does not exist or was missed.",
-		)
-	}
-
-	return responses.ResponseSyncDuties(ctx, fiber.StatusOK, keys)
+	return responses.ResponseValidators(ctx, fiber.StatusOK, keys)
 }

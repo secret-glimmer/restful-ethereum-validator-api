@@ -2,7 +2,8 @@ package handlers
 
 import (
 	"strconv"
-	fn "validator-api/pkgs/functions"
+	"validator-api/models"
+	f "validator-api/pkgs/functions"
 	"validator-api/responses"
 	s "validator-api/server"
 	"validator-api/services"
@@ -35,30 +36,37 @@ func (h *HandlerBlockReward) GetBlockReward(ctx *fiber.Ctx) error {
 	slot, _ := strconv.Atoi(ctx.Params("slot"))
 
 	// Check if slot is in future
-	if fn.IsSlotInFuture(slot) {
+	if f.IsSlotInFuture(slot) {
 		return responses.ErrorResponse(ctx,
 			fiber.StatusBadRequest,
 			"Requested slot is in the future.",
 		)
 	}
 
-	reward, isEmpty, isError := services.GetBlockReward(slot, h.Server.Config)
+	response := models.ResponseBlock{}
 
-	// Check internal server error
-	if isError {
-		return responses.ErrorResponse(ctx,
-			fiber.StatusInternalServerError,
-			"Internal server error.",
-		)
-	}
+	err := services.BlockByTimeStamp(slot, h.Server.Config.QuckNode.Http, &response)
 
-	// Check if slot does exist
-	if isEmpty {
+	if err != nil {
 		return responses.ErrorResponse(ctx,
 			fiber.StatusNotFound,
-			"Slot does not exist or was missed.",
+			err.Error(),
 		)
 	}
 
-	return responses.ResponseBlockReward(ctx, fiber.StatusOK, reward)
+	block := response.Result
+
+	blockNumer := f.IntFromHex(block.Number)
+	staticBlockReward := services.StaticBlockReward(blockNumer)
+	transactionFee := services.TransactionFee(block, h.Server.Config.QuckNode.Http)
+	burntFee := services.BurntFee(blockNumer, &block)
+
+	result := staticBlockReward.Add(staticBlockReward, transactionFee.Sub(transactionFee, burntFee))
+
+	reward, _ := result.Float64()
+
+	return responses.ResponseBlockReward(ctx, fiber.StatusOK, models.BlockReward{
+		Status: "",
+		Reward: reward,
+	})
 }

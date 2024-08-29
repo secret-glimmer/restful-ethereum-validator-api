@@ -4,13 +4,13 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type SyncDuties struct {
+type Validators struct {
 	Keys []string `json:"keys"`
 }
 
-func ResponseSyncDuties(ctx *fiber.Ctx, statusCOde int, keys []string) error {
+func ResponseValidators(ctx *fiber.Ctx, statusCOde int, keys []string) error {
 	return ctx.Status(statusCOde).JSON(
-		SyncDuties{
+		Validators{
 			Keys: keys,
 		},
 	)
